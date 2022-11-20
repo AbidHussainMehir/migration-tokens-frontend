@@ -49,7 +49,7 @@ function App() {
   };
   const processTransferTokens = async () => {
     accounts();
-      if (account === null) {
+    if (account === null) {
       toast.error("Whoops..., Metamask is not connected.", {
         position: toast.POSITION.TOP_RIGHT,
       });
@@ -58,7 +58,6 @@ function App() {
       try {
         await transferTokens();
       } catch (e) {
-       
         console.log("error rejection", e);
       }
     }
@@ -132,7 +131,7 @@ function App() {
   };
 
   return (
-    <div className="w-100 overflow-hidden " style={{ background: "#FEFEFF" }}>
+    <div className="w-100 overflow-hidden ">
       <ToastContainer />
       <header className="container-fluid header-section overflow-hidden">
         <nav className="navbar navbar-expand custom-nav-container">
@@ -159,12 +158,12 @@ function App() {
             <div className="card-body col-11">
               <div className="row">
                 <div className="col-6 me-auto">
-                  <span>
+                  <span className="card-heading">
                     <b>Migration</b>
                   </span>
                 </div>
               </div>
-              <div className="row swap-heading">
+              <div className="row swap-heading ">
                 <div className="col-12">
                   <span>
                     {" "}
