@@ -1,11 +1,6 @@
 import Web3 from "web3";
 import React, { useState } from "react";
-import {
-  ABI,
-  CONTRACT_ADDRESS,
-  APPROVE_ABI,
-  APPROVE_ADDRESS,
-} from "./constants/data";
+import { ABI, CONTRACT_ADDRESS } from "./constants/data";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/index.css";
@@ -15,11 +10,12 @@ function App() {
   const [account, setAccount] = useState(null);
   const [allowance, setAllowance] = useState(0);
   const [decimals, setDecimals] = useState(1);
+  const [balance, setBalance] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [OT, setOT] = useState(0);
   const [YT, setYT] = useState(0);
   const [usdc, setUsdc] = useState(0);
-  const date = [1672272000];
   const [currentDate, setCurrentDate] = useState(null);
 
   const transferTokens = async () => {
@@ -47,6 +43,40 @@ function App() {
         console.log("error", error);
       });
   };
+
+  const approveMethod = async () => {
+    try {
+      const web3 = window.web3;
+      let b = web3.utils.toWei('999999999');
+     
+      await erc20Contract()
+        .methods.approve(
+          CONTRACT_ADDRESS,
+          b
+        )
+        .send({ from: account })
+        .on("transactionHash", async (hash) => {
+          toast.error("RBN Approve is processing.", {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+        })
+        .on("receipt", async (receipt) => {
+          checkAllowance();
+          toast.success("RBN successful Approved.", {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+        })
+        .on("error", async (error) => {
+          toast.error("Something went wrong", {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+          console.log("error", error);
+        });
+    } catch (error) {
+      console.log("approve error",error)
+    }
+   
+  };
   const processTransferTokens = async () => {
     accounts();
     if (account === null) {
@@ -64,7 +94,7 @@ function App() {
   };
 
   const erc20Contract = () => {
-    return new window.web3.eth.Contract(APPROVE_ABI, APPROVE_ADDRESS);
+    return new window.web3.eth.Contract(ABI, CONTRACT_ADDRESS);
   };
 
   const web3 = async () => {
@@ -94,7 +124,22 @@ function App() {
       const _allowance = await erc20Contract()
         .methods.allowance(_accounts[0], CONTRACT_ADDRESS)
         .call();
-      setAllowance(_allowance);
+      const web3 = window.web3;
+      let b = web3.utils.fromWei(_allowance);
+      setAllowance(b);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const checkBalance = async () => {
+    try {
+      const _accounts = await accounts();
+      const web3 = window.web3;
+      const _allowance = await erc20Contract()
+        .methods.balanceOf(_accounts[0])
+        .call();
+      let b = web3.utils.fromWei(_allowance);
+      setBalance(b);
     } catch (error) {
       console.log(error);
     }
@@ -113,12 +158,9 @@ function App() {
           position: toast.POSITION.TOP_RIGHT,
         });
 
-        const web3 = window.web3;
-
-        let _accounts = await accounts();
-
         const decimal = await erc20Contract().methods.decimals().call();
-
+        checkBalance();
+        checkAllowance();
         setDecimals(decimal);
 
         window.ethereum.on("accountsChanged", async (account) => {
@@ -190,6 +232,13 @@ function App() {
                         setUsdc(e.target.value);
                       }}
                     />
+                    <button
+                      className="card-connect-btn"
+                      style={{ width: "90px" }}
+                      onClick={() => setUsdc(balance)}
+                    >
+                      Max
+                    </button>
                   </div>
                 </div>
               </div>
@@ -197,12 +246,20 @@ function App() {
               <div className="row mt-4 pt-3">
                 <div className="col-12">
                   {account ? (
-                    <button
-                      className="card-connect-btn"
-                      onClick={() => processTransferTokens()}
-                    >
-                      {"Transfer"}
-                    </button>
+                    <>
+                     {allowance<balance? <button
+                        className="card-connect-btn"
+                        onClick={() => approveMethod()}
+                      >
+                        {"Approve"}
+                      </button>:
+                      <button
+                        className="card-connect-btn"
+                        onClick={() => processTransferTokens()}
+                      >
+                        {"Transfer"}
+                      </button>}
+                    </>
                   ) : (
                     <button className="card-connect-btn" onClick={metamask}>
                       Connect wallet
