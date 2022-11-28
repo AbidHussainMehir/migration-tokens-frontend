@@ -4,7 +4,7 @@ import { ABI, CONTRACT_ADDRESS } from "./constants/data";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/index.css";
-
+import robinos from "./assets/images/robinos-black-text.png";
 function App() {
   const [errorState, setErrorState] = useState(false);
   const [account, setAccount] = useState(null);
@@ -177,6 +177,8 @@ function App() {
       <ToastContainer />
       <header className="container-fluid header-section overflow-hidden">
         <nav className="navbar navbar-expand custom-nav-container">
+       <img src={robinos} alt='Robinos Logo' 
+     height={"40px"} />
           <ul className="navbar-nav me-auto ms-auto d-flex align-items-end">
             <li className="nav-item">
               <a className="nav-link header-link" href="#">
